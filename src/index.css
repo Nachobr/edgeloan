@@ -1,0 +1,35 @@
+@import "tailwindcss";
+
+@theme {
+  --font-mono: "JetBrains Mono", monospace;
+  --color-terminal-bg: #050505;
+  --color-terminal-panel: #0F1115;
+  --color-terminal-border: #333333;
+  --color-terminal-green: #00FF41;
+  --color-terminal-red: #FF2A00;
+  --color-terminal-accent: #FFD700;
+}
+
+html,
+body {
+  @apply bg-terminal-bg text-gray-300 h-full;
+  margin: 0;
+}
+
+/* Custom Scrollbar for Terminal Look */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0F1115;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #333;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}

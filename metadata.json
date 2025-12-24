@@ -1,0 +1,5 @@
+{
+  "name": "EdgeLend Desktop",
+  "description": "A decentralized lending platform MVP with a Bloomberg-terminal aesthetic, featuring collateral management, loan issuance, and simulated market scenarios.",
+  "requestFramePermissions": []
+}
