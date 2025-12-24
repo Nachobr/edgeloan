@@ -27,6 +27,7 @@ pyinstaller main.py \
     --hidden-import=uvicorn.protocols.http.auto \
     --hidden-import=uvicorn.lifespan \
     --hidden-import=uvicorn.lifespan.on \
+    --hidden-import=dotenv \
     --clean
 
 echo "Build complete! Binary located at backend/dist/edgelend-engine"

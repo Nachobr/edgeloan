@@ -5,8 +5,13 @@ from typing import List, Optional, Literal, Dict
 from enum import Enum
 import asyncio
 import random
+import os
 from datetime import datetime
+from dotenv import load_dotenv
 from web3 import Web3
+
+# Load environment variables
+load_dotenv()
 
 app = FastAPI()
 
@@ -193,7 +198,8 @@ class SimulateArbResponse(BaseModel):
 # --- 4. Live Oracle Logic (Chainlink Sepolia) ---
 
 # Chainlink Setup (Ethereum Sepolia Testnet)
-RPC_URL = "https://rpc.ankr.com/eth_sepolia/b6034d8a1a6efc9ee7e09a3a16edf37a266ac1998874467e7606aee8b9ab2842"
+# Chainlink Setup (Ethereum Sepolia Testnet)
+RPC_URL = os.getenv("RPC_URL", "https://rpc.ankr.com/eth_sepolia") # Fallback to public if missing
 CHAINLINK_AGGREGATOR_ADDRESS = "0x694AA1769357215DE4FAC081bf1f309aDC325306" # ETH/USD on Sepolia
 CHAINLINK_ABI = '[{"inputs":[],"name":"latestRoundData","outputs":[{"internalType":"uint80","name":"roundId","type":"uint80"},{"internalType":"int256","name":"answer","type":"int256"},{"internalType":"uint256","name":"startedAt","type":"uint256"},{"internalType":"uint256","name":"updatedAt","type":"uint256"},{"internalType":"uint80","name":"answeredInRound","type":"uint80"}],"stateMutability":"view","type":"function"}]'
 
