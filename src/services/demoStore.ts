@@ -17,23 +17,39 @@ interface AppState {
   simulateArbStrategy: (asset: string, amount: number, direction: 'LONG' | 'SHORT') => Promise<{ success: boolean, message: string }>;
 }
 
-const API_URL = 'http://localhost:8000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+const IS_DEMO_MODE = import.meta.env.VITE_DEMO_MODE === 'true';
+
+// Mock Data for Vercel Demo
+const MOCK_MARKET = {
+  assets: {
+    'ETH': { symbol: 'ETH', name: 'Ethereum', price: 2000.0, ltv: 0.80, liquidation_threshold: 0.85 },
+    'BTC': { symbol: 'BTC', name: 'Bitcoin', price: 60000.0, ltv: 0.75, liquidation_threshold: 0.80 },
+    'SOL': { symbol: 'SOL', name: 'Solana', price: 100.0, ltv: 0.60, liquidation_threshold: 0.65 },
+    'USDC': { symbol: 'USDC', name: 'USD Coin', price: 1.0, ltv: 0.90, liquidation_threshold: 0.95 },
+  },
+  priceHistory: Array(20).fill(0).map((_, i) => ({ time: `10:${i}`, assets: { 'ETH': 2000 + Math.random() * 10 } })),
+  positionHistory: []
+};
+const MOCK_WALLET: WalletState = { balances: { 'ETH': 10, 'BTC': 0.5, 'SOL': 100, 'USDC': 10000 }, network: 'Sepolia (Demo)' };
+const MOCK_PROFILE: CreditProfile = { score: 750, riskTier: 'LOW', maxLtvBoost: 0.05 };
 
 export const useDemoStore = create<AppState>((set, get) => ({
   market: { assets: {}, priceHistory: [], positionHistory: [] },
-  position: {
-    collateralAsset: 'ETH',
-    collateralAmount: 0,
-    loanAmount: 0,
-    entryPrice: 0,
-    liquidationPrice: 0,
-    healthFactor: 0,
-    status: 'NONE'
-  },
+  position: { collateralAsset: 'ETH', collateralAmount: 0, loanAmount: 0, entryPrice: 0, liquidationPrice: 0, healthFactor: 0, status: 'NONE' },
   walletBalance: { balances: {}, network: 'Sepolia' },
   creditProfile: { score: 750, riskTier: 'LOW', maxLtvBoost: 0.05 },
 
   fetchData: async () => {
+    if (IS_DEMO_MODE) {
+      // Mock state updates
+      set(state => ({
+        market: state.market.assets['ETH'] ? state.market : MOCK_MARKET, // Keep state if init
+        walletBalance: state.walletBalance.balances['ETH'] ? state.walletBalance : MOCK_WALLET,
+        creditProfile: MOCK_PROFILE
+      }));
+      return;
+    }
     try {
       const [marketRes, walletRes, posRes, creditRes] = await Promise.all([
         fetch(`${API_URL}/market`),
@@ -56,6 +72,10 @@ export const useDemoStore = create<AppState>((set, get) => ({
   },
 
   depositAndBorrow: async (asset, amount) => {
+    if (IS_DEMO_MODE) {
+      alert("Interactive Deposit is disabled in Vercel Demo Mode. Download Desktop App for full engine.");
+      return;
+    }
     try {
       await fetch(`${API_URL}/deposit`, {
         method: 'POST',
@@ -70,6 +90,7 @@ export const useDemoStore = create<AppState>((set, get) => ({
   },
 
   repayPosition: async () => {
+    if (IS_DEMO_MODE) return;
     try {
       await fetch(`${API_URL}/repay`, { method: 'POST' });
       await get().fetchData();
@@ -79,11 +100,16 @@ export const useDemoStore = create<AppState>((set, get) => ({
   },
 
   resetPosition: async () => {
+    if (IS_DEMO_MODE) return;
     await fetch(`${API_URL}/reset`, { method: 'POST' });
     await get().fetchData();
   },
 
   triggerScenario: async (scenario) => {
+    if (IS_DEMO_MODE) {
+      alert("Simulations require Python backend. Please download the Desktop App.");
+      return;
+    }
     await fetch(`${API_URL}/scenario`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -93,6 +119,9 @@ export const useDemoStore = create<AppState>((set, get) => ({
   },
 
   executeFlashLoan: async (asset, amount, direction) => {
+    if (IS_DEMO_MODE) {
+      return { success: true, message: "Demo Mode: Logic executed (simulated)" };
+    }
     try {
       const res = await fetch(`${API_URL}/flash-loan`, {
         method: 'POST',
@@ -111,6 +140,9 @@ export const useDemoStore = create<AppState>((set, get) => ({
   },
 
   simulateArbStrategy: async (asset, amount, direction) => {
+    if (IS_DEMO_MODE) {
+      return { success: true, message: "✅ Profit: $500.00 (Demo Mode)" };
+    }
     try {
       const res = await fetch(`${API_URL}/simulate-arb`, {
         method: 'POST',
